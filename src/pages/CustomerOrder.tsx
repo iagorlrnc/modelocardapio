@@ -181,16 +181,11 @@ export default function CustomerOrder() {
       })
 
       setUserOrders(ordersWithEmployee)
-      // Se há apenas um pedido e não estamos fazendo novo pedido, mantém sempre no painel de status
-      if (ordersWithEmployee.length === 1 && !skipAutoSelectOrder) {
+      // Atualizar informações dos pedidos sem mudar de aba automaticamente
+      if (isInitialLoad && !viewingOrderId && !skipAutoSelectOrder) {
+        // Na primeira carga, seleciona o primeiro pedido
         setCurrentOrder(ordersWithEmployee[0])
         setViewingOrderId(ordersWithEmployee[0].id)
-        setActiveTab("orders")
-      } else if (isInitialLoad && !viewingOrderId && !skipAutoSelectOrder) {
-        // Se há múltiplos pedidos e é a primeira carga, mostra o mais recente
-        setCurrentOrder(ordersWithEmployee[0])
-        setViewingOrderId(ordersWithEmployee[0].id)
-        setActiveTab("orders")
         setIsInitialLoad(false)
       } else if (viewingOrderId) {
         // Se já está visualizando um pedido específico, mantém ele atualizado
@@ -207,9 +202,9 @@ export default function CustomerOrder() {
       }
     } else {
       setUserOrders([])
+      // Se não há pedidos, apenas limpa os dados sem mudar de aba
       setCurrentOrder(null)
       setViewingOrderId(null)
-      setActiveTab("menu")
       setIsInitialLoad(false)
     }
   }, [user?.id, viewingOrderId, isInitialLoad, skipAutoSelectOrder])
