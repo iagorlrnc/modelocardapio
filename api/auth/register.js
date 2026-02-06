@@ -66,6 +66,7 @@ export default async function handler(req, res) {
       password_hash: hashedPassword,
       slug: generateSlug(username),
       is_admin: false,
+      is_active: true,
     })
 
     if (error) {

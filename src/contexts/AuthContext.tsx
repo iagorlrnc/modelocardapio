@@ -154,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq("username", username)
         .eq("is_admin", false)
         .eq("is_employee", false)
+        .eq("is_active", true)
 
       const { data, error } = await query.maybeSingle()
 
@@ -219,6 +220,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq("slug", slug)
         .eq("is_admin", false)
         .eq("is_employee", false)
+        .eq("is_active", true)
         .maybeSingle()
 
       if (error || !data) {

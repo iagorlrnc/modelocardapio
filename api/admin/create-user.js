@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       is_admin: !!is_admin,
       is_employee: !!is_employee,
       approval_status: "approved",
+      is_active: true,
     })
 
     if (error) {

@@ -296,6 +296,7 @@ export default function AdminDashboard() {
       .from("users")
       .select("id, username, phone, is_admin, is_employee, slug, created_at")
       .eq("approval_status", "approved")
+      .eq("is_active", true)
       .order("created_at", { ascending: false })
     if (data) setUsers(data as User[])
   }
@@ -979,6 +980,44 @@ export default function AdminDashboard() {
       // Se for cliente/mesa (não é admin nem funcionário), gerar senha padrão
       if (!userFormData.is_admin && !userFormData.is_employee) {
         password = `Mesa${userFormData.username}@2024`
+
+        // Verificar se existe uma mesa desativada com esse número
+        const { data: deactivatedMesa } = await supabase
+          .from("users")
+          .select("id, is_active")
+          .eq("username", userFormData.username)
+          .eq("is_active", false)
+          .maybeSingle()
+
+        if (deactivatedMesa) {
+          // Reativar a mesa desativada
+          try {
+            await supabase
+              .from("users")
+              .update({ is_active: true })
+              .eq("id", deactivatedMesa.id)
+
+            setShowUserModal(false)
+            setUserFormData({
+              username: "",
+              phone: "",
+              password: "",
+              is_admin: false,
+              is_employee: false,
+            })
+            fetchUsers()
+            toast.success("Mesa reativada com sucesso.")
+            setIsAddingUser(false)
+            return
+          } catch (error) {
+            toast.error(
+              "Não foi possível reativar a mesa. Detalhes: " +
+                (error as Error).message,
+            )
+            setIsAddingUser(false)
+            return
+          }
+        }
       } else {
         // Para admin e funcionário, validar a senha com Zod
         const passwordValidation = passwordSchema.safeParse(
@@ -994,11 +1033,12 @@ export default function AdminDashboard() {
         }
       }
 
-      // Verificar se o usuário já existe
+      // Verificar se o usuário já existe (ativo)
       const { data: existingUser } = await supabase
         .from("users")
         .select("username")
         .eq("username", userFormData.username)
+        .eq("is_active", true)
         .maybeSingle()
 
       if (existingUser) {
@@ -1190,9 +1230,32 @@ export default function AdminDashboard() {
     }
 
     try {
-      await supabase.from("users").delete().eq("id", userId)
+      // Buscar o usuário para verificar seu tipo
+      const { data: user } = await supabase
+        .from("users")
+        .select("is_admin, is_employee")
+        .eq("id", userId)
+        .maybeSingle()
+
+      if (!user) {
+        toast.error("Usuário não encontrado.")
+        return
+      }
+
+      // Se for cliente/mesa (não é admin nem funcionário), fazer soft-delete
+      if (!user.is_admin && !user.is_employee) {
+        await supabase
+          .from("users")
+          .update({ is_active: false })
+          .eq("id", userId)
+        toast.success("Mesa removida com sucesso.")
+      } else {
+        // Se for funcionário ou admin, fazer hard-delete
+        await supabase.from("users").delete().eq("id", userId)
+        toast.success("Usuário removido com sucesso.")
+      }
+
       fetchUsers()
-      toast.success("Usuário removido com sucesso.")
     } catch (error) {
       toast.error(
         "Não foi possível remover o usuário. Detalhes: " +

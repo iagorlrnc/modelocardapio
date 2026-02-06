@@ -22,6 +22,7 @@ export default async function handler(req, res) {
       .from("users")
       .select("id, username, phone, is_admin, is_employee, slug, password_hash")
       .eq("username", username)
+      .eq("is_active", true)
 
     if (isEmployee) {
       query = query.eq("is_employee", true).eq("is_admin", false)

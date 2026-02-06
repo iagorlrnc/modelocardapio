@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       is_admin: userType === "admin",
       is_employee: userType === "employee",
       approval_status: "pending",
+      is_active: true,
     })
 
     if (error) {
