@@ -691,9 +691,9 @@ export default function CustomerOrder() {
           backgroundRepeat: "no-repeat",
         }}
       />
-      <div className="fixed inset-0 bg-black/50 pointer-events-none" />
+      <div className="fixed inset-0 bg-black/50 pointer-events-none z-0" />
       <div
-        className={`min-h-screen${showWelcome ? " pointer-events-none select-none blur-sm" : ""}`}
+        className={`relative z-10 min-h-screen${showWelcome ? " pointer-events-none select-none blur-sm" : ""}`}
       >
         {/* Header */}
         <header className="sticky top-0 left-0 right-0 z-40 bg-black/20 backdrop-blur-sm shadow-md safe-area-top">
