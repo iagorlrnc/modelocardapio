@@ -105,6 +105,7 @@ export default function AdminDashboard() {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>("")
   const [showUserModal, setShowUserModal] = useState(false)
+  const [isAddingUser, setIsAddingUser] = useState(false)
   const [userFormData, setUserFormData] = useState({
     username: "",
     phone: "",
@@ -969,6 +970,7 @@ export default function AdminDashboard() {
 
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsAddingUser(true)
 
     try {
       // Determinar a senha a ser usada
@@ -987,6 +989,7 @@ export default function AdminDashboard() {
           const firstIssue = passwordValidation.error.issues?.[0]
           const errorMessage = firstIssue?.message || "Senha inválida."
           toast.error(`Senha inválida: ${errorMessage}`)
+          setIsAddingUser(false)
           return
         }
       }
@@ -1000,6 +1003,7 @@ export default function AdminDashboard() {
 
       if (existingUser) {
         toast.error("Já existe um usuário com esse nome. Escolha outro.")
+        setIsAddingUser(false)
         return
       }
 
@@ -1024,6 +1028,7 @@ export default function AdminDashboard() {
           "Não foi possível criar o usuário. Detalhes: " +
             (result?.error || "erro desconhecido"),
         )
+        setIsAddingUser(false)
         return
       }
 
@@ -1037,11 +1042,13 @@ export default function AdminDashboard() {
       })
       fetchUsers()
       toast.success("Usuário criado e liberado para acesso.")
+      setIsAddingUser(false)
     } catch (error) {
       toast.error(
         "Não foi possível criar o usuário. Detalhes: " +
           (error as Error).message,
       )
+      setIsAddingUser(false)
     }
   }
 
@@ -3016,9 +3023,10 @@ export default function AdminDashboard() {
               <div className="p-4 sm:p-6 border-t flex-shrink-0">
                 <button
                   type="submit"
-                  className="w-full bg-black text-white py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-800 transition text-sm sm:text-base"
+                  disabled={isAddingUser}
+                  className="w-full bg-black text-white py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-800 transition text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-800"
                 >
-                  Adicionar Usuário
+                  {isAddingUser ? "Adicionando..." : "Adicionar Usuário"}
                 </button>
               </div>
             </form>
