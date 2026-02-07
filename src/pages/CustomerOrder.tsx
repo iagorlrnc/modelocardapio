@@ -22,6 +22,7 @@ import {
 import { useAuth } from "../contexts/AuthContext"
 import { supabase, MenuItem, CartItem, Order } from "../lib/supabase"
 import { UserQRCodeDisplay } from "../components/UserQRCodeDisplay"
+import { appToast } from "../lib/toast"
 
 const formatOrderNumericId = (id: string) => {
   // deterministic hash to 3-digit numeric id (100-999)
@@ -45,8 +46,6 @@ export default function CustomerOrder() {
   const [viewingOrderId, setViewingOrderId] = useState<string | null>(null)
   const [categories, setCategories] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [toastMessage, setToastMessage] = useState<string>("")
-  const [showToast, setShowToast] = useState<boolean>(false)
   const [activeTab, setActiveTab] = useState<"menu" | "orders">("menu")
   const [showItemDetails, setShowItemDetails] = useState(false)
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null)
@@ -65,7 +64,6 @@ export default function CustomerOrder() {
   const [itemQuantitySelector, setItemQuantitySelector] = useState<{
     [key: string]: number
   }>({})
-  const toastTimeoutRef = useRef<number | null>(null)
   const filterRef = useRef<HTMLDivElement>(null)
 
   const fetchMenuItems = useCallback(async () => {
@@ -358,16 +356,7 @@ export default function CustomerOrder() {
       return newSelector
     })
 
-    // Mostrar toast de confirmação
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current)
-    }
-    setToastMessage(`${item.name} adicionado ao carrinho`)
-    setShowToast(true)
-    toastTimeoutRef.current = window.setTimeout(() => {
-      setShowToast(false)
-      toastTimeoutRef.current = null
-    }, 2500)
+    appToast.success(`${item.name} adicionado ao carrinho`)
   }
 
   const handleCartButtonClick = (itemId: string) => {
@@ -419,24 +408,14 @@ export default function CustomerOrder() {
           .update({ status: "cancelled" })
           .eq("id", orderId)
 
-        setToastMessage("Pedido cancelado com sucesso")
-        setShowToast(true)
-        toastTimeoutRef.current = window.setTimeout(() => {
-          setShowToast(false)
-          toastTimeoutRef.current = null
-        }, 2500)
+        appToast.success("Pedido cancelado com sucesso")
 
         // Atualizar o pedido localmente
         setCurrentOrder((prev) =>
           prev ? { ...prev, status: "cancelled" } : null,
         )
       } catch (error) {
-        setToastMessage("Erro ao cancelar pedido")
-        setShowToast(true)
-        toastTimeoutRef.current = window.setTimeout(() => {
-          setShowToast(false)
-          toastTimeoutRef.current = null
-        }, 2500)
+        appToast.error("Erro ao cancelar pedido")
       }
     }
   }
@@ -452,6 +431,9 @@ export default function CustomerOrder() {
   }
 
   const removeFromCart = (id: string) => {
+    if (!window.confirm("Remover este item do carrinho?")) {
+      return
+    }
     setCart((prevCart) => prevCart.filter((item) => item.id !== id))
   }
 
@@ -489,22 +471,12 @@ export default function CustomerOrder() {
   const handleCallWaiter = async () => {
     // Evitar chamadas repetidas em menos de 30 segundos
     if (lastWaiterCall && Date.now() - lastWaiterCall < 30000) {
-      setToastMessage("Aguarde um pouco antes de chamar novamente.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 2500)
+      appToast.warn("Aguarde um pouco antes de chamar novamente.")
       return
     }
 
     if (!user?.id) {
-      setToastMessage("Erro: usuário não identificado.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 2500)
+      appToast.error("Erro: usuário não identificado.")
       return
     }
 
@@ -531,19 +503,9 @@ export default function CustomerOrder() {
       }
 
       setLastWaiterCall(Date.now())
-      setToastMessage("Garçom solicitado! Aguarde a chegada.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 2500)
+      appToast.success("Garçom solicitado! Aguarde a chegada.")
     } catch (error) {
-      setToastMessage("Erro ao solicitar garçom. Tente novamente.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 2500)
+      appToast.error("Erro ao solicitar garçom. Tente novamente.")
     } finally {
       setCallingWaiter(false)
     }
@@ -552,32 +514,17 @@ export default function CustomerOrder() {
   const handleFinishOrder = async () => {
     // Verificações de validação
     if (!user?.id) {
-      setToastMessage("Você precisa estar logado para fazer um pedido.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 3000)
+      appToast.warn("Você precisa estar logado para fazer um pedido.")
       return
     }
 
     if (cart.length === 0) {
-      setToastMessage("Adicione pelo menos um item ao carrinho.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 3000)
+      appToast.warn("Adicione pelo menos um item ao carrinho.")
       return
     }
 
     if (!paymentMethod) {
-      setToastMessage("Selecione a forma de pagamento.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 3000)
+      appToast.warn("Selecione a forma de pagamento.")
       return
     }
 
@@ -625,12 +572,7 @@ export default function CustomerOrder() {
         )
       }
 
-      setToastMessage("Pedido realizado com sucesso!")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 3000)
+      appToast.success("Pedido realizado com sucesso!")
 
       setCart([])
       setPaymentMethod("")
@@ -643,12 +585,7 @@ export default function CustomerOrder() {
       setActiveTab("orders")
       setShowCart(false)
     } catch (error) {
-      setToastMessage("Erro ao finalizar pedido. Tente novamente.")
-      setShowToast(true)
-      toastTimeoutRef.current = window.setTimeout(() => {
-        setShowToast(false)
-        toastTimeoutRef.current = null
-      }, 3000)
+      appToast.error("Erro ao finalizar pedido. Tente novamente.")
     } finally {
       setLoading(false)
     }
@@ -662,13 +599,13 @@ export default function CustomerOrder() {
           onClick={() => setShowWelcome(false)}
         >
           <img
-            src="/assets/iconpngorange.png"
+            src="/assets/sua_logo.png"
             alt="Bem-vindo"
             className="w-32 sm:h-20 md:h-24 object-cover rounded-full"
           />
           <h1
             className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 text-center break-words px-4"
-            style={{ fontFamily: "'Verona TS Bold', serif" }}
+            // style={{ fontFamily: "'Verona TS Bold', serif" }}
           >
             Bem-vindo
           </h1>
@@ -678,6 +615,7 @@ export default function CustomerOrder() {
         </div>
       )}
       {/* Fixed background layer */}
+      {/*
       <div
         className="fixed inset-0 bg-responsive -z-10"
         style={{
@@ -686,12 +624,14 @@ export default function CustomerOrder() {
           backgroundRepeat: "no-repeat",
         }}
       />
+      */}
+      <div className="fixed inset-0 bg-black -z-10" />
       <div className="fixed inset-0 bg-black/50 pointer-events-none z-0" />
       <div
         className={`relative z-10 min-h-screen${showWelcome ? " pointer-events-none select-none blur-sm" : ""}`}
       >
         {/* Header */}
-        <header className="sticky top-0 left-0 right-0 z-40 bg-black/20 backdrop-blur-sm shadow-md safe-area-top">
+        <header className="sticky top-0 left-0 right-0 z-40 bg-black/70 backdrop-blur-sm shadow-md safe-area-top">
           <div className="w-full px-3 sm:px-4 md:px-6 py-4 sm:py-6">
             <div className="flex items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-0">
               <div className="flex items-center gap-1 sm:gap-4">
@@ -699,8 +639,8 @@ export default function CustomerOrder() {
                   onClick={() => setActiveTab("menu")}
                   className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition duration-200 ${
                     activeTab === "menu"
-                      ? "bg-black text-white"
-                      : "text-white hover:bg-white hover:text-black"
+                      ? "bg-white text-black"
+                      : "text-white hover:bg-gray-700 hover:text-white"
                   }`}
                 >
                   <BookOpenCheck className="w-4 h-4 sm:w-5 sm:h-5 text-current" />
@@ -712,8 +652,8 @@ export default function CustomerOrder() {
                   onClick={handleViewOrders}
                   className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg font-medium text-xs sm:text-sm transition duration-200 ${
                     activeTab === "orders"
-                      ? "bg-black text-white"
-                      : "text-white hover:bg-white hover:text-black"
+                      ? "bg-white text-black"
+                      : "text-white hover:bg-gray-700 hover:text-white"
                   }`}
                 >
                   <History className="w-4 h-4 sm:w-5 sm:h-5 text-current" />
@@ -794,7 +734,7 @@ export default function CustomerOrder() {
                 {/* Search and Filters */}
                 <div
                   ref={filterRef}
-                  className="relative z-50 bg-white/20 backdrop-blur-sm rounded-lg shadow-sm p-3 sm:p-4 md:p-6 mb-4 sm:mb-6"
+                  className="relative z-30 bg-white/20 backdrop-blur-sm rounded-lg shadow-sm p-3 sm:p-4 md:p-6 mb-4 sm:mb-6"
                 >
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
                     <div className="flex-1 relative">
@@ -840,7 +780,7 @@ export default function CustomerOrder() {
                       </button>
 
                       {isFilterOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-[1000]">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-30">
                           {[
                             "Todos",
                             ...categories.filter((cat) => cat !== "todos"),
@@ -868,7 +808,7 @@ export default function CustomerOrder() {
 
                   {/* Tags dos filtros selecionados - Desktop (centralizadas abaixo) */}
                   {selectedCategories.length > 0 && (
-                    <div className="hidden md:flex justify-center mb-4 sm:mb-6">
+                    <div className="hidden md:flex justify-center mb-0 sm:mb-0">
                       <div className="flex flex-wrap justify-center gap-2">
                         {selectedCategories.map((category) => (
                           <span
@@ -1020,8 +960,9 @@ export default function CustomerOrder() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                           {items.map((item) => (
                             <div
+                              // white/20 - items
                               key={item.id}
-                              className="bg-white/35 backdrop-blur-sm rounded-lg shadow-sm p-3 sm:p-4 hover:shadow-md transition-shadow"
+                              className="bg-white backdrop-blur-sm rounded-lg shadow-sm p-3 sm:p-4 hover:shadow-md transition-shadow"
                             >
                               <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 xs:gap-3 sm:gap-4">
                                 <img
@@ -1030,12 +971,12 @@ export default function CustomerOrder() {
                                   className="w-16 h-16 xs:w-20 xs:h-20 object-cover rounded-lg flex-shrink-0"
                                 />
                                 <div className="flex-1 min-w-0 w-full">
-                                  <h3 className="font-bold text-sm xs:text-base sm:text-lg mb-1 line-clamp-2 text-black">
+                                  <h3 className="font-bold text-sm xs:text-base sm:text-lg mb-1 truncate text-black">
                                     {item.name}
                                   </h3>
                                   <button
                                     onClick={() => openItemDetails(item)}
-                                    className="text-[#fff] hover:text-[#e1e1e1] text-xs xs:text-sm font-medium mb-2 block underline"
+                                    className="text-[#000] hover:text-[#a1a1a1] text-xs xs:text-sm font-medium mb-2 block underline"
                                   >
                                     ver detalhes
                                   </button>
@@ -1258,7 +1199,7 @@ export default function CustomerOrder() {
                   </p>
                   <button
                     onClick={handleNewOrder}
-                    className="bg-black text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-800 transition text-sm sm:text-base"
+                    className="bg-white text-black px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-800 hover:text-white transition text-sm sm:text-base"
                   >
                     Fazer Primeiro Pedido
                   </button>
@@ -1560,14 +1501,6 @@ export default function CustomerOrder() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {showToast && (
-          <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 px-3">
-            <div className="bg-green-600 bg-opacity-90 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg shadow-md max-w-lg w-full text-center text-xs sm:text-sm">
-              {toastMessage}
             </div>
           </div>
         )}

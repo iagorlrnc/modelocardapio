@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
 import { supabase, MenuItem, Order, OrderItem, User } from "../lib/supabase"
-import { toast } from "react-toastify"
+import { appToast as toast } from "../lib/toast"
 import jsPDF from "jspdf"
 import { passwordSchema } from "../lib/validationSchemas"
 

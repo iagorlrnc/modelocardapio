@@ -11,7 +11,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
 import { supabase, Order } from "../lib/supabase"
-import { toast } from "react-toastify"
+import { appToast } from "../lib/toast"
 
 const formatOrderNumericId = (id: string) => {
   let hash = 0
@@ -142,7 +142,7 @@ export default function EmployeeDashboard() {
         .order("created_at", { ascending: false })
       setWaiterCalls(data || [])
     } catch (error) {
-      toast.error("Erro ao buscar chamadas")
+      appToast.error("Erro ao buscar chamadas")
     }
   }
 
@@ -157,7 +157,7 @@ export default function EmployeeDashboard() {
 
       fetchWaiterCalls()
     } catch (error) {
-      toast.error("Erro ao marcar chamada como concluída")
+      appToast.error("Erro ao marcar chamada como concluída")
     }
   }
 
@@ -185,14 +185,14 @@ export default function EmployeeDashboard() {
       )
 
       if (error) {
-        toast.error("Erro ao reservar mesa: " + error.message)
+        appToast.error("Erro ao reservar mesa: " + error.message)
         return
       }
 
-      toast.success(`Mesa ${username} reservada!`)
+      appToast.success(`Mesa ${username} reservada!`)
       loadSessionUsers()
     } catch (error) {
-      toast.error("Erro ao reservar mesa")
+      appToast.error("Erro ao reservar mesa")
     }
   }
 
@@ -207,14 +207,14 @@ export default function EmployeeDashboard() {
         .eq("user_id", user.id)
 
       if (error) {
-        toast.error("Erro ao liberar mesa: " + error.message)
+        appToast.error("Erro ao liberar mesa: " + error.message)
         return
       }
 
-      toast.success(`Mesa ${username} liberada!`)
+      appToast.success(`Mesa ${username} liberada!`)
       loadSessionUsers()
     } catch (error) {
-      toast.error("Erro ao liberar mesa")
+      appToast.error("Erro ao liberar mesa")
     }
   }
 
@@ -264,7 +264,7 @@ export default function EmployeeDashboard() {
         if (employeeExists) {
           updateData.assigned_to = user.id
         } else {
-          toast.warn(
+          appToast.warn(
             "Aviso: Não foi possível atribuir o pedido a você. Por favor, faça login novamente.",
           )
         }
@@ -276,7 +276,7 @@ export default function EmployeeDashboard() {
         .eq("id", orderId)
 
       if (error) {
-        toast.error("Erro ao atualizar pedido: " + error.message)
+        appToast.error("Erro ao atualizar pedido: " + error.message)
         return
       }
 
@@ -289,11 +289,11 @@ export default function EmployeeDashboard() {
       }
 
       const message = statusMessages[newStatus] || "Pedido atualizado!"
-      toast.success(message)
+      appToast.success(message)
 
       fetchOrders()
     } catch (error) {
-      toast.error("Erro ao atualizar pedido. Tente novamente.")
+      appToast.error("Erro ao atualizar pedido. Tente novamente.")
     }
   }
 
@@ -302,7 +302,7 @@ export default function EmployeeDashboard() {
       return
     }
     await supabase.from("orders").update({ hidden: true }).eq("id", orderId)
-    toast.error("Pedido removido da lista!")
+    appToast.error("Pedido removido da lista!")
     fetchOrders()
   }
 
@@ -326,14 +326,14 @@ export default function EmployeeDashboard() {
         .in("id", orderIds)
 
       if (error) {
-        toast.error("Erro ao limpar pedidos: " + error.message)
+        appToast.error("Erro ao limpar pedidos: " + error.message)
         return
       }
 
-      toast.success(`Todos os pedidos da Mesa ${username} foram removidos!`)
+      appToast.success(`Todos os pedidos da Mesa ${username} foram removidos!`)
       fetchOrders()
     } catch (error) {
-      toast.error("Erro ao limpar pedidos")
+      appToast.error("Erro ao limpar pedidos")
     }
   }
 

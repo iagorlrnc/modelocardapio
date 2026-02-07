@@ -110,98 +110,103 @@ export default function Login({
   //bg-[url('/assets/.jpg')]
 
   return (
-    <div className="min-h-screen bg-[url('/assets/bg.jpg')] bg-cover bg-center flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-black/20 backdrop-blur-sm rounded-lg shadow-2xl p-8 before:absolute before:inset-0 before:rounded-lg before:z-0">
-          <div className="relative z-10 mb-0 flex flex-col items-center">
-            <img
-              src="/assets/iconwhite.png"
-              className="w-24 h-24 object-cover rounded-full mb-1"
-            />
-            <h1
-              className="text-[#c7e7e8] text-center text-4xl mb-6"
-              style={{
-                fontFamily: "'Verona TS Bold', serif",
-                textShadow: "0 2px 6px rgba(0,0,0)",
-              }}
-            >
-              Cardápio
-            </h1>
-          </div>
-          {error && (
-            <div className="relative z-10 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="relative z-10 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-white mb-1">
-                Selecione sua Mesa
-              </label>
-              <select
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 border border-[#001b6b] rounded-lg focus:ring-2 focus:ring-[#001b6b] focus:border-transparent outline-none transition bg-white"
-                required
+    <>
+      {/* bg-[url('/assets/bg.jpg')] bg-cover bg-center */}
+      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white/20 backdrop-blur-sm rounded-lg shadow-2xl p-8 before:absolute before:inset-0 before:rounded-lg before:z-0">
+            <div className="relative z-10 mb-0 flex flex-col items-center">
+              <img
+                src="/assets/sua_logo.png"
+                className="w-24 h-24 object-cover rounded-full mb-1"
+              />
+              <h1
+                className="text-[#fff] text-center text-4xl mb-6"
+                style={{
+                  // fontFamily: "'Verona TS Bold', serif",
+                  textShadow: "0 2px 6px rgba(0,0,0)",
+                }}
               >
-                <option value="">Selecionar</option>
-                {clientUsers.map((user) => (
-                  <option
-                    key={user.id}
-                    value={user.username}
-                    disabled={loggedInUsers.includes(user.username)}
-                  >
-                    Mesa {user.username}
-                    {loggedInUsers.includes(user.username) ? " (Ocupada)" : ""}
-                  </option>
-                ))}
-              </select>
+                Cardápio
+              </h1>
             </div>
+            {error && (
+              <div className="relative z-10 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
+              </div>
+            )}
 
-            <button
-              type="button"
-              onClick={() => setShowQRReader(true)}
-              className="relative w-full bg-[#013d5a] text-white py-2 rounded-lg font-semibold hover:bg-[#0084c4] transition"
-            >
-              Ler QR Code
-            </button>
+            <form onSubmit={handleSubmit} className="relative z-10 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-white mb-1">
+                  Selecione sua Mesa
+                </label>
+                <select
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-2 border border-[#001b6b] rounded-lg focus:ring-2 focus:ring-[#001b6b] focus:border-transparent outline-none transition bg-white"
+                  required
+                >
+                  <option value="">Selecionar</option>
+                  {clientUsers.map((user) => (
+                    <option
+                      key={user.id}
+                      value={user.username}
+                      disabled={loggedInUsers.includes(user.username)}
+                    >
+                      Mesa {user.username}
+                      {loggedInUsers.includes(user.username)
+                        ? " (Ocupada)"
+                        : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="relative w-full bg-[#f8a808] text-black py-3 rounded-lg font-semibold hover:bg-[#ffd814] transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Entrando..." : "Entrar"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="relative w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Entrando..." : "Entrar"}
+              </button>
 
-          <div className="relative z-10 mt-6 text-center">
-            <button
-              onClick={onSwitchToEmployee}
-              className="block w-full text-sm text-white active:text-white focus:text-white transition mb-3"
-            >
-              Acesso Funcionário{" "}
-              <span className="font-semibold">Login Funcionário</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setShowQRReader(true)}
+                className="relative w-full bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-700 transition"
+              >
+                Ler QR Code
+              </button>
+            </form>
 
-            <button
-              onClick={onSwitchToRegister}
-              className="text-sm text-white active:text-white focus:text-white transition"
-            >
-              Acesso Administrador{" "}
-              <span className="font-semibold">Login Administrador</span>
-            </button>
+            <div className="relative z-10 mt-6 text-center">
+              <button
+                onClick={onSwitchToEmployee}
+                className="block w-full text-sm text-white active:text-white focus:text-white transition mb-3"
+              >
+                Acesso Funcionário{" "}
+                <span className="font-semibold">Login Funcionário</span>
+              </button>
+
+              <button
+                onClick={onSwitchToRegister}
+                className="text-sm text-white active:text-white focus:text-white transition"
+              >
+                Acesso Administrador{" "}
+                <span className="font-semibold">Login Administrador</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {showQRReader && (
-        <QRCodeReader
-          onQRCodeDetected={handleQRCodeDetected}
-          onClose={() => setShowQRReader(false)}
-        />
-      )}
-    </div>
+        {showQRReader && (
+          <QRCodeReader
+            onQRCodeDetected={handleQRCodeDetected}
+            onClose={() => setShowQRReader(false)}
+          />
+        )}
+      </div>
+    </>
   )
 }
