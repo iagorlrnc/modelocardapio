@@ -1123,7 +1123,7 @@ export default function AdminDashboard() {
         }
 
         if (orderItems && orderItems.length > 0) {
-          toast.warning(
+          toast.warn(
             "Não é possível excluir este item porque ele está associado a pedidos existentes. Desative o item em vez de excluí-lo.",
           )
           return

@@ -64,7 +64,11 @@ export default function CustomerOrder() {
   const [itemQuantitySelector, setItemQuantitySelector] = useState<{
     [key: string]: number
   }>({})
+  const [cartNotification, setCartNotification] = useState<string>("")
+  const [showCartNotification, setShowCartNotification] =
+    useState<boolean>(false)
   const filterRef = useRef<HTMLDivElement>(null)
+  const cartNotificationTimeoutRef = useRef<number | null>(null)
 
   const fetchMenuItems = useCallback(async () => {
     const { data } = await supabase
@@ -356,7 +360,16 @@ export default function CustomerOrder() {
       return newSelector
     })
 
-    appToast.success(`${item.name} adicionado ao carrinho`)
+    // Mostrar notificação na parte inferior
+    if (cartNotificationTimeoutRef.current) {
+      clearTimeout(cartNotificationTimeoutRef.current)
+    }
+    setCartNotification(`${item.name} adicionado ao carrinho`)
+    setShowCartNotification(true)
+    cartNotificationTimeoutRef.current = window.setTimeout(() => {
+      setShowCartNotification(false)
+      cartNotificationTimeoutRef.current = null
+    }, 3000)
   }
 
   const handleCartButtonClick = (itemId: string) => {
@@ -1208,7 +1221,7 @@ export default function CustomerOrder() {
 
               {userOrders.length > 1 && (
                 <div className="mt-6 sm:mt-8">
-                  <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-white">
                     Histórico de Pedidos
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -1511,6 +1524,17 @@ export default function CustomerOrder() {
             userSlug={user.slug}
             onClose={() => setShowUserQRCode(false)}
           />
+        )}
+
+        {showCartNotification && (
+          <div className="fixed bottom-20 sm:bottom-24 left-0 right-0 z-50 px-4 safe-area-bottom">
+            <div className="max-w-md mx-auto bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-center gap-2 animate-slide-in-up">
+              <ShoppingCart className="w-5 h-5 flex-shrink-0" />
+              <span className="font-medium text-center">
+                {cartNotification}
+              </span>
+            </div>
+          </div>
         )}
       </div>
     </>
