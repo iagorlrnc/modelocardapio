@@ -1,6 +1,7 @@
-# Cardápio Seguro
+# Cardápio Interativo
+- [https://mdlocadora.vercel.app/](https://modelocardapiointerativo.vercel.app/)
 
-O **Cardápio Seguro** é uma plataforma digital desenvolvida para facilitar a gestão de pedidos e o controle de acesso em estabelecimentos alimentícios, proporcionando segurança, praticidade e eficiência tanto para administradores quanto para clientes e funcionários.
+O **Cardápio Interativo** é uma plataforma digital desenvolvida para facilitar a gestão de pedidos e o controle de acesso em estabelecimentos alimentícios, proporcionando segurança, praticidade e eficiência tanto para administradores quanto para clientes e funcionários.
 
 ## Funcionalidades Principais
 
@@ -35,7 +36,6 @@ O **Cardápio Seguro** é uma plataforma digital desenvolvida para facilitar a g
 ### 6. Outras Funcionalidades
 
 - **Notificações Toast**: Feedback visual para ações do usuário.
-- **Remoção de Background de Imagens**: Script Python para remoção de fundo de imagens (removebg.py).
 - **Configuração para Deploy**: Arquivos de configuração para Docker, Vercel, Nginx e ambiente de produção.
 
 ## Estrutura do Projeto
@@ -53,9 +53,6 @@ O **Cardápio Seguro** é uma plataforma digital desenvolvida para facilitar a g
 - **Tailwind CSS**
 - **Supabase**
 - **Node.js**
-- **Docker**
-- **Nginx**
-- **Python** (para scripts auxiliares)
 
 ## Como Executar o Projeto
 
@@ -120,3 +117,16 @@ Para realizar o deploy do projeto na Vercel:
 ├── supabase/
 │   └── migrations/
 ```
+
+## Contato
+
+**Iagor Lourenço**
+
+- GitHub: [https://github.com/iagorlrnc](https://github.com/iagorlrnc)
+- LinkedIn: [linkedin.com/in/iagorlrnc/](https://www.linkedin.com/in/iagorlrnc/)
+- Email: theiagorlourenco@gmail.com
+- WhatsApp: (63) 99123-7836
+
+---
+
+Desenvolvido por Iagor Lourenço</content>
